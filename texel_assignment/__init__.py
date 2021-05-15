@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from argparse import ArgumentParser
+
+from .freeze_frames_finder import FreezeFramesFinder
 
 
 parser = ArgumentParser('Find frozen frames in videos using ffmpeg')
@@ -13,7 +17,7 @@ parser.add_argument(
     default=None,
 )
 parser.add_argument(
-    'url',
+    'urls',
     help='''
     List of URLs to videos we need to process.
     ''',
@@ -23,4 +27,10 @@ parser.add_argument(
 
 def main(cli_args):
     pargs = parser.parse_args(cli_args)
+    finder = FreezeFramesFinder(pargs.output, pargs.urls)
+    try:
+        finder.run()
+    except Exception as e:
+        logging.exception(e)
+        return 1
     return 0
