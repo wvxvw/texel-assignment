@@ -12,7 +12,7 @@
   Write a program that downloads a set of video files from a given set
   of urls, runs a [[https://ffmpeg.org/ffmpeg-filters.html#freezedetect][filter]] (consider using 'n=0.003') on each one and
   exposes its output into a useful format for consumption by other
-  APIs. You can use the ffmpeg CLI for this, i.e. no need to work
+  APIs. You can use the =ffmpeg= CLI for this, i.e. no need to work
   against its libs.
 
   The filter will output the timed occurrences of freeze-frame periods

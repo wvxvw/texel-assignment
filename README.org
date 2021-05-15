@@ -1,0 +1,33 @@
+* Installing
+  This has only been tested on Linux with Python v3.8.  The
+  instructions assume this is what is being used.
+
+  #+BEGIN_SRC sh
+    python3 -m venv .venv
+    . ./.venv/bin/activate
+    ./setup.py install
+  #+END_SRC
+
+* Testing
+** Unit tests
+
+   #+BEGIN_SRC sh
+     python3 -m venv .venv
+     . ./.venv/bin/activate
+     ./setup.py test
+   #+END_SRC
+
+** Liniting
+
+   #+BEGIN_SRC sh
+     python3 -m venv .venv
+     . ./.venv/bin/activate
+     ./setup.py lint   
+   #+END_SRC
+
+* Running
+  Using command line:
+  
+  #+BEGIN_SRC sh
+    texel-detect-frozen [-o output] [URL1 [URL2 ...]]
+  #+END_SRC

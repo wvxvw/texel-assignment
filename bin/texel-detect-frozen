@@ -1,0 +1,9 @@
+#!python
+# -*- mode: python -*-
+
+import sys
+
+from texel_assignment import main
+
+
+sys.exit(main(sys.argv[1:]))
