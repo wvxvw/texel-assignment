@@ -85,10 +85,6 @@ setup(
         'lint': Pep8,
     },
     tests_require=['pytest', 'pycodestyle'],
-    install_requires=[
-        'pandas',
-        'numpy',
-    ],
     scripts=[
         'bin/texel-detect-frozen',
     ],
