@@ -4,6 +4,9 @@
 import os
 import sys
 import subprocess
+import shlex
+
+from glob import glob
 
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
@@ -54,7 +57,7 @@ class Pep8(TestCommand):
         from pycodestyle import StyleGuide
 
         package_dir = os.path.dirname(os.path.abspath(__file__))
-        sources = [os.path.join(package_dir, 'cleanX.py')]
+        sources = glob(os.path.join(package_dir, 'texel_assignment', '*.py'))
         style_guide = StyleGuide(paths=sources)
         options = style_guide.options
 
@@ -70,20 +73,23 @@ class Pep8(TestCommand):
 setup(
     name=name,
     version=version,
-    description="Detect frozen frames in video using ffmpeg",
+    description='Detect frozen frames in video using ffmpeg',
     long_description=readme,
     long_description_content_type='text/markdown',
     author='olegsivokon@gmail.com',
-    url="https://github.com/wvxvw/texel-assignment",
-    license="MIT",
-    py_modules=["cleanX"],
+    url='https://github.com/wvxvw/texel-assignment',
+    license='MIT',
+    packages=['texel_assignment'],
     cmdclass={
         'test': PyTest,
         'lint': Pep8,
     },
     tests_require=['pytest', 'pycodestyle'],
     install_requires=[
-        "pandas",
+        'pandas',
         'numpy',
+    ],
+    scripts=[
+        'bin/texel-detect-frozen',
     ],
 )
