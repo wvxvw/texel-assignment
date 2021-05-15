@@ -9,6 +9,7 @@ import sys
 import textwrap
 
 from concurrent.futures import ThreadPoolExecutor
+from functools import reduce
 from io import BytesIO
 
 
@@ -17,6 +18,10 @@ class FreezeFrameFinderError(RuntimeError):
 
 
 class FreezeFramesFinder:
+
+    freezedetect_noise = 0.003
+
+    sync_tolerance = 0.5
 
     duration_re = re.compile(
         br'(?P<hours>\d\d):(?P<minutes>\d\d):(?P<seconds>\d\d\.\d\d)'
@@ -34,7 +39,9 @@ class FreezeFramesFinder:
                     '-hide_banner',
                     '-nostats',
                     '-i', url,
-                    '-vf', 'freezedetect=n=0.003',
+                    '-vf', 'freezedetect=n={:.03}'.format(
+                        self.freezedetect_noise,
+                    ),
                     '-f', 'null',
                     '-',
                 ],
@@ -59,7 +66,7 @@ class FreezeFramesFinder:
         return tuple(
             (start, end)
             for start, end in zip(result, result[1:])
-        )
+        )[::2]
 
     def aggregate(self, results):
         states = b'start', b'duration', b'end'
@@ -97,32 +104,41 @@ class FreezeFramesFinder:
             inverted[url] = self.invert_intervals(intervals, durations[url])
         return inverted
 
+    def longest_valid_period(self, intervals):
+        start, end = max(intervals, key=lambda i: i[1] - i[0])
+        return end - start
+
+    def valid_video_percentage(self, intervals):
+        duration = intervals[-1][-1]
+        return (100 * sum(i[1] - i[0] for i in intervals)) / duration
+
     def report_video(self, intervals):
         return {
-	    'longest_valid_period': 7.35,
-	    'valid_video_percentage': 56.00,
-	    'valid_periods':[
-		[
-		    0.00,
-		    3.50
-		],
-		[
-		    6.65,
-		    14
-		],
-		[
-		    19.71,
-		    20.14
-		]
-	    ]
+	    'longest_valid_period': self.longest_valid_period(intervals),
+	    'valid_video_percentage': self.valid_video_percentage(intervals),
+	    'valid_periods': intervals,
 	}
 
+    def compute_extremi(self, *args):
+        return max(args), min(args)
+
     def all_videos_freeze_frame_synced(self, aggregated):
-        return True
+        lengths = tuple(len(intervals) for intervals in aggregated.values())
+        if not all(a == b for a, b in zip(lengths, lengths[:1])):
+            return False
+        flat = (
+            reduce(lambda a, b: a + list(b), pairs, [])
+            for pairs in aggregated.values()
+        )
+        extremi = map(self.compute_extremi, *flat)
+        return all(
+            maxv - minv <= self.sync_tolerance for maxv, minv in extremi
+        )
 
     def format_output(self, aggregated):
         report =  {
-	    'all_videos_freeze_frame_synced': self.all_videos_freeze_frame_synced(
+	    'all_videos_freeze_frame_synced':
+            self.all_videos_freeze_frame_synced(
                 aggregated,
             ),
 	    'videos': [

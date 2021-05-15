@@ -1,0 +1,46 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'https://storage.googleapis.com/hiring_process_data/freeze_frame_input_c.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 1
+    compatible_brands: mp41mp42isom
+    creation_time   : 2019-12-23T23:10:35.000000Z
+  Duration: 00:00:26.76, start: 0.000000, bitrate: 7013 kb/s
+    Stream #0:0(eng): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 44 kb/s (default)
+    Metadata:
+      creation_time   : 2019-12-23T23:10:35.000000Z
+      handler_name    : Core Media Audio
+    Stream #0:1(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 960x540 [SAR 1:1 DAR 16:9], 6924 kb/s, 59.94 fps, 59.94 tbr, 60k tbn, 120k tbc (default)
+    Metadata:
+      creation_time   : 2019-12-23T23:10:35.000000Z
+      handler_name    : Core Media Video
+Stream mapping:
+  Stream #0:1 -> #0:0 (h264 (native) -> wrapped_avframe (native))
+  Stream #0:0 -> #0:1 (aac (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, null, to 'pipe:':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 1
+    compatible_brands: mp41mp42isom
+    encoder         : Lavf58.29.100
+    Stream #0:0(und): Video: wrapped_avframe, yuv420p, 960x540 [SAR 1:1 DAR 16:9], q=2-31, 200 kb/s, 59.94 fps, 59.94 tbn, 59.94 tbc (default)
+    Metadata:
+      creation_time   : 2019-12-23T23:10:35.000000Z
+      handler_name    : Core Media Video
+      encoder         : Lavc58.54.100 wrapped_avframe
+    Stream #0:1(eng): Audio: pcm_s16le, 48000 Hz, stereo, s16, 1536 kb/s (default)
+    Metadata:
+      creation_time   : 2019-12-23T23:10:35.000000Z
+      handler_name    : Core Media Audio
+      encoder         : Lavc58.54.100 pcm_s16le
+[freezedetect @ 0x55d83c921e40] lavfi.freezedetect.freeze_start: 4.5045
+[freezedetect @ 0x55d83c921e40] lavfi.freezedetect.freeze_duration: 3.8038
+[freezedetect @ 0x55d83c921e40] lavfi.freezedetect.freeze_end: 8.3083
+[freezedetect @ 0x55d83c921e40] lavfi.freezedetect.freeze_start: 9.97663
+[freezedetect @ 0x55d83c921e40] lavfi.freezedetect.freeze_duration: 2.15215
+[freezedetect @ 0x55d83c921e40] lavfi.freezedetect.freeze_end: 12.1288
+[freezedetect @ 0x55d83c921e40] lavfi.freezedetect.freeze_start: 16.016
+[freezedetect @ 0x55d83c921e40] lavfi.freezedetect.freeze_duration: 7.25725
+[freezedetect @ 0x55d83c921e40] lavfi.freezedetect.freeze_end: 23.2733
+frame= 1604 fps=286 q=-0.0 Lsize=N/A time=00:00:26.77 bitrate=N/A speed=4.78x    
+video:840kB audio:5020kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
