@@ -114,10 +114,10 @@ class FreezeFramesFinder:
 
     def report_video(self, intervals):
         return {
-	    'longest_valid_period': self.longest_valid_period(intervals),
-	    'valid_video_percentage': self.valid_video_percentage(intervals),
-	    'valid_periods': intervals,
-	}
+            'longest_valid_period': self.longest_valid_period(intervals),
+            'valid_video_percentage': self.valid_video_percentage(intervals),
+            'valid_periods': intervals,
+        }
 
     def compute_extremi(self, *args):
         return max(args), min(args)
@@ -136,15 +136,15 @@ class FreezeFramesFinder:
         )
 
     def format_output(self, aggregated):
-        report =  {
-	    'all_videos_freeze_frame_synced':
+        report = {
+            'all_videos_freeze_frame_synced':
             self.all_videos_freeze_frame_synced(
                 aggregated,
             ),
-	    'videos': [
+            'videos': [
                 self.report_video(intervals)
-	        for intervals in aggregated.values()
-	    ]
+                for intervals in aggregated.values()
+            ]
         }
         if not self.output:
             json.dump(report, sys.stdout, indent=4)
