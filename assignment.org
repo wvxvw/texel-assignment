@@ -91,8 +91,9 @@
       }    
     #+END_SRC
 
-    Sample MaterialsYou can use the following video paths as test
-    data:
+** Sample Materials
+
+    You can use the following video paths as test data:
 
     + https://storage.googleapis.com/hiring_process_data/freeze_frame_input_a.mp4
     + https://storage.googleapis.com/hiring_process_data/freeze_frame_input_b.mp4
