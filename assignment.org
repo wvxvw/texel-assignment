@@ -1,0 +1,104 @@
+* Freeze-Frame-Validator, Take-Home Task
+
+  The task solves a real-world problem related to ingesting a video
+  file into Texel's system.
+
+  Freezing frames, arriving that way from the encoder, are a major
+  artefact in users' perceived QoE.  Detecting these periods in the
+  video is a prerequisite prior to processing them.  Brief
+
+  Write a program that downloads a set of video files from a given set
+  of urls, runs a [[https://ffmpeg.org/ffmpeg-filters.html#freezedetect][filter]] (consider using 'n=0.003') on each one and
+  exposes its output into a useful format for consumption by other
+  APIs. You can use the ffmpeg CLI for this, i.e. no need to work
+  against its libs.
+
+  The filter will output the timed occurrences of freeze-frame periods
+  in the following structure:
+
+  #+BEGIN_EXAMPLE
+    [freezedetect @ 0x7faf71100a00] lavfi.freezedetect.freeze_start: 5.3053
+    [freezedetect @ 0x7faf71100a00] lavfi.freezedetect.freeze_duration: 2.05205
+    [freezedetect @ 0x7faf71100a00] lavfi.freezedetect.freeze_end: 7.35735
+    [freezedetect @ 0x7faf71100a00] lavfi.freezedetect.freeze_start: 16.78345    
+    ...
+  #+END_EXAMPLE
+
+  For simplicity, the largest point in the dataset represents the
+  total duration of the stream.
+
+  You might need to use ffmpeg version 4 or larger
+
+** Requirements
+
+    1. The data needs to be inverted to show when video was valid and
+       should be stored as a series of points. This is based on
+       =freeze_start= and =freeze_end= values. The unit of these values
+       are seconds. For example, the above would translate to
+       =[0, 5.30]=, =[7.36, 16.78]=.
+    2. Determines the longest period of valid video within each
+       stream.
+    3. Determines the percentage of all aggregated valid video periods
+       over the entire duration of the stream.
+    4. Determines whether the entire videos set is synced freeze-frame
+       wise, iff all videos have the same amount of valid periods, and
+       each period's corresponding =start= or =end= cross all videos
+       are no more than 500 ms apart.
+
+    You'll return the following JSON structure:
+
+    #+BEGIN_SRC json
+      {
+	 "all_videos_freeze_frame_synced":true,
+	 "videos":[
+	    {
+	       "longest_valid_period":7.35,
+	       "valid_video_percentage":56.00,
+	       "valid_periods":[
+		  [
+		     0.00,
+		     3.50
+		  ],
+		  [
+		     6.65,
+		     14
+		  ],
+		  [
+		     19.71,
+		     20.14
+		  ]
+	       ]
+	    },
+	    {
+	       "longest_valid_period":7.33,
+	       "valid_video_percentage":55.10,
+	       "valid_periods":[
+		  [
+		     0.00,
+		     3.40
+		  ],
+		  [
+		     6.65,
+		     13.98
+		  ],
+		  [
+		     19.71,
+		     20.00
+		  ]
+	       ]
+	    }
+	 ]
+      }    
+    #+END_SRC
+
+    Sample MaterialsYou can use the following video paths as test
+    data:
+
+    https://storage.googleapis.com/hiring_process_data/freeze_frame_input_a.mp4
+    https://storage.googleapis.com/hiring_process_data/freeze_frame_input_b.mp4
+    https://storage.googleapis.com/hiring_process_data/freeze_frame_input_c.mp4
+
+    =freeze_frame_input_a= and =freeze_frame_input_b= should act as a
+    freeze-frame wise synced set while the the inclusion of
+    =freeze_frame_input_c= will make the set out of sync (freeze-frame
+    wise).
