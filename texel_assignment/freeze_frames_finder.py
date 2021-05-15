@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import os
+import json
 import logging
-import textwrap
+import os
+import re
 import subprocess
+import sys
+import textwrap
 
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
@@ -14,6 +17,10 @@ class FreezeFrameFinderError(RuntimeError):
 
 
 class FreezeFramesFinder:
+
+    duration_re = re.compile(
+        br'(?P<hours>\d\d):(?P<minutes>\d\d):(?P<seconds>\d\d\.\d\d)'
+    )
 
     def __init__(self, output, urls):
         self.output = output
@@ -36,17 +43,38 @@ class FreezeFramesFinder:
         except subprocess.CalledProcessError as e:
             return e.output, False
 
+    def parse_duration(self, raw):
+        match = re.match(self.duration_re, raw)
+        return (
+            int(match.group('hours')) * 60 * 60 +
+            int(match.group('minutes')) * 60 +
+            float(match.group('seconds'))
+        )
+
+    def invert_intervals(self, intervals, duration):
+        result = [0.0] + sum(
+            (list(pair) for pair in intervals),
+            start=[],
+        ) + [duration]
+        return tuple(
+            (start, end)
+            for start, end in zip(result, result[1:])
+        )
+
     def aggregate(self, results):
         states = b'start', b'duration', b'end'
         current = 2
         by_url = {}
+        durations = {}
         interval = [None, None]
 
         for url, result in results:
-            print(url)
             by_url[url] = intervals = []
             for line in BytesIO(result):
-                if line.startswith(b'[freezedetect'):
+                if line.startswith(b'  Duration: '):
+                    _, duration, _ = line.split(maxsplit=2)
+                    durations[url] = self.parse_duration(duration)
+                elif line.startswith(b'[freezedetect'):
                     prefix, suffix = line.split(b': ')
                     current = (current + 1) % len(states)
                     state = states[current]
@@ -64,8 +92,49 @@ class FreezeFramesFinder:
                     elif state == b'end':
                         interval[1] = value
                         intervals.append(tuple(interval))
-                    # print(state, value)
-        print(by_url)
+        inverted = {}
+        for url, intervals in by_url.items():
+            inverted[url] = self.invert_intervals(intervals, durations[url])
+        return inverted
+
+    def report_video(self, intervals):
+        return {
+	    'longest_valid_period': 7.35,
+	    'valid_video_percentage': 56.00,
+	    'valid_periods':[
+		[
+		    0.00,
+		    3.50
+		],
+		[
+		    6.65,
+		    14
+		],
+		[
+		    19.71,
+		    20.14
+		]
+	    ]
+	}
+
+    def all_videos_freeze_frame_synced(self, aggregated):
+        return True
+
+    def format_output(self, aggregated):
+        report =  {
+	    'all_videos_freeze_frame_synced': self.all_videos_freeze_frame_synced(
+                aggregated,
+            ),
+	    'videos': [
+                self.report_video(intervals)
+	        for intervals in aggregated.values()
+	    ]
+        }
+        if not self.output:
+            json.dump(report, sys.stdout, indent=4)
+        else:
+            with open(self.output, 'w') as f:
+                json.dump(report, f, indent=4)
 
     def run(self):
         failures, results = [], []
@@ -80,7 +149,8 @@ class FreezeFramesFinder:
                     failures.append((url, pout))
 
         if not failures:
-            return self.aggregate(results)
+            aggregated = self.aggregate(results)
+            return self.format_output(aggregated)
         elif results and failures:
             logging.warning('Some videos failed filtering:')
             for url, f in failures:
