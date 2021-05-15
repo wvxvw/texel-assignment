@@ -5,7 +5,9 @@
 
   Freezing frames, arriving that way from the encoder, are a major
   artefact in users' perceived QoE.  Detecting these periods in the
-  video is a prerequisite prior to processing them.  Brief
+  video is a prerequisite prior to processing them.
+
+** Brief
 
   Write a program that downloads a set of video files from a given set
   of urls, runs a [[https://ffmpeg.org/ffmpeg-filters.html#freezedetect][filter]] (consider using 'n=0.003') on each one and
